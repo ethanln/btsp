@@ -9,6 +9,9 @@ var app = express();
 // set app main client directory.
 app.use(express.static('../client/views'));
 
+//instantiate customizeResponse object
+app.use(require('./util/customizeResponse'));
+
 // set up data object parser, will handle converting http body data into object instances.
 var urlencode = {
 	type : 'application/x-www-form-urlencoded',

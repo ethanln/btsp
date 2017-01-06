@@ -1,9 +1,35 @@
 <html>
 	<head>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script>
+		$(document).ready(function(){
+			$("#load").on('click', function(e){
+				var url = $("#url-input").val();
+
+				$.ajax({
+					method: "POST",
+					url: "/download_management/extract_audio",
+					data: {
+						video_id: url
+					},
+					success: function(data){
+						console.log(data);
+					},
+					error: function(xhr, status, err) {
+						console.log(err);
+					}
+				});
+			});
+
+		});
+		</script>
 	</head>
 
 	<body>
 		<iframe width="560" height="315" src="https://www.youtube.com/embed/H6yPLpfaGQI?list=PLSbqUp4rMsfdKcB_LqnY-T0Pr4FvpZqlc" frameborder="0" allowfullscreen></iframe>
+
+		<input type='text' id='url-input'>
+		<button id='load'>
+
 	</body>
 </html>

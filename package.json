@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ethanln/btsp/issues"
   },
-  "homepage": "https://github.com/ethanln/btsp"
+  "homepage": "https://github.com/ethanln/btsp",
+  "dependencies": {
+    "multer": "^1.2.1"
+  }
 }
