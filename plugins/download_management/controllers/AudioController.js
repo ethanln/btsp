@@ -10,7 +10,7 @@ router.post('/extract_audio', extractAudio);
 function extractAudio(req, res){
 
 	var size = 300000 * 10000;
-	var loc = "stuff.mp4";
+
 	console.log(req.body);
 	if(!req.body.video_id){
 		res.statusCode = 500;
@@ -18,7 +18,7 @@ function extractAudio(req, res){
 	}
 
 	try{
-		dl.toMP3(req.body.video_id, size, loc);
+		dl.toMP3(req.body.video_id, size, ['20', '30'], '1', null);
 	}
 	catch(e){
 		res.statusCode = 500;
