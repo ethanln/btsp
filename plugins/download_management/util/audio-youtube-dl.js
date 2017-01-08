@@ -14,29 +14,8 @@ var BASE_URL = "https://youtu.be/";
 var VIDEO_OUTPUT_URL = '../video_output';
 var AUDIO_OUTPUT_URL = '../music_output';
 
-/*var AudioYoutubeDL = {
-	toMP3 : function (video_id, size, write_to_url){
-
-		youtubedl.getInfo(BASE_URL + video_id, [], {maxBuffer:size}, function(err, info) {
-			if(err){
-				throw err;
-			}
-		});
-
-		youtubedl.exec(BASE_URL + video_id, ['-x', '--audio-format', 'mp3'], {maxBuffer:size, cwd: '../music_output', startSeconds: 40, endSeconds: 100}, function(err, output) {
-		  if (err){
-			throw err;
-		  } 
-		  console.log(output.join('\n'));
-		});
-
-		//video.setVideoStartTime('00:00:13');
-		//video.setVideoDuration('00:01:40')
-	}
-}*/
-
 var AudioYoutubeDL = {
-	toMP3 : function(video_id, size, time_interval, task_id, fileName){
+	toMP3 : function(video_id, size, time_interval, task_id, _filename){
 		console.log("Downloading...")
 		var video = youtubedl(BASE_URL + video_id,
 		  // Optional arguments passed to youtube-dl. 
@@ -45,7 +24,8 @@ var AudioYoutubeDL = {
 		  { cwd: VIDEO_OUTPUT_URL });
 
 		// set filename, if one is provided.
-		var filename = filename ? filename : null;
+		var filename = _filename ? _filename : null;
+		console.log(filename);
 
 		// Will be called when the download starts. 
 		video.on('info', function(info) {
@@ -53,6 +33,7 @@ var AudioYoutubeDL = {
 		  console.log('size: ' + info.size);
 		  // set filename for audio if non is provided.
 		  if(!filename){
+		  	console.log("stuff");
 		  	filename = info._filename.replace(".mp4", "");
 		  	filename = filename.replace(/\W+/g, "_");
 		  }

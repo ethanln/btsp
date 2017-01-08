@@ -4,13 +4,19 @@
 		<script>
 		$(document).ready(function(){
 			$("#load").on('click', function(e){
-				var url = $("#url-input").val();
+				var _video_id = $("#video-id-input").val();
+				var _filename= $("#filename-input").val();
+				var _startTime = $("#start-input").val();
+				var _endTime = $("#end-input").val();
 
 				$.ajax({
 					method: "POST",
 					url: "/download_management/extract_audio",
 					data: {
-						video_id: url
+						video_id: _video_id,
+						filename: _filename,
+						startTime: _startTime,
+						endTime: _endTime
 					},
 					success: function(data){
 						console.log(data);
@@ -28,8 +34,12 @@
 	<body>
 		<iframe width="560" height="315" src="https://www.youtube.com/embed/H6yPLpfaGQI?list=PLSbqUp4rMsfdKcB_LqnY-T0Pr4FvpZqlc" frameborder="0" allowfullscreen></iframe>
 
-		<input type='text' id='url-input'>
-		<button id='load'>
+		<input type='text' id='video-id-input' placeholder='video ID' />
+		<input type='text' id='filename-input' placeholder='file name' />
+		<input type='text' id='start-input' placeholder='start' />
+		<input type='text' id='end-input' placeholder='end' />
+		
+		<button id='load'> LOAD </button>
 
 	</body>
 </html>
