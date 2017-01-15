@@ -15,7 +15,7 @@ var VIDEO_OUTPUT_URL = '../video_output';
 var AUDIO_OUTPUT_URL = '../music_output';
 
 var AudioYoutubeDL = {
-	toMP3 : function(video_id, size, time_interval, task_id, _filename){
+	toMP3 : function(video_id, size, time_interval, task_id, _filename, cb){
 		console.log("Downloading...")
 		var video = youtubedl(BASE_URL + video_id,
 		  // Optional arguments passed to youtube-dl. 
@@ -33,7 +33,6 @@ var AudioYoutubeDL = {
 		  console.log('size: ' + info.size);
 		  // set filename for audio if non is provided.
 		  if(!filename){
-		  	console.log("stuff");
 		  	filename = info._filename.replace(".mp4", "");
 		  	filename = filename.replace(/\W+/g, "_");
 		  }
@@ -43,20 +42,35 @@ var AudioYoutubeDL = {
 		video.on('end', function(){
 			if(time_interval){
 				// apply time interval to video
-				applyTimeInterval(filename, task_id, time_interval);
+				applyTimeInterval(filename, task_id, time_interval, cb);
 			}
 			else{
 				// start audio conversion.
-				extractAudio(filename, task_id);
+				extractAudio(filename, task_id, cb);
 			}
 		});
 		 
 		// pipe video data stream to directory.
 		video.pipe(fs.createWriteStream(VIDEO_OUTPUT_URL + '/out_' + task_id + '.mp4'));
+	},
+	readBytes : function(fileLoc){
+		fs.open(fileLoc, 'r', function(status, fd) {
+		    if (status) {
+		        console.log(status.message);
+		        return;
+		    }
+		    var buffer = new Buffer(100);
+		    fs.read(fd, buffer, 0, 100, 0, function(err, num) {
+		        console.log(buffer.toString('utf8', 0, num));
+		        //for(var i = 0; i < num; i++){
+
+		        //}
+		    });
+		});
 	}
 }
 
-function applyTimeInterval(filename, task_id, time_interval){
+function applyTimeInterval(filename, task_id, time_interval, cb){
 	console.log("Applying time interval...");
 
 	try{
@@ -74,7 +88,7 @@ function applyTimeInterval(filename, task_id, time_interval){
 				fs.unlinkSync(filePath);
 
 	          	// begin extracting audio.
-	      		extractAudio(filename, task_id + '_cut');
+	      		extractAudio(filename, task_id + '_cut', cb);
 	        }                 
 	    })
 	    .on('error', function(err){
@@ -87,7 +101,7 @@ function applyTimeInterval(filename, task_id, time_interval){
 	}
 }
 
-function extractAudio(filename, task_id){
+function extractAudio(filename, task_id, cb){
 	// i'll have to check first if the filename already exists, and if it does, change its name first.
 	console.log("Extracting audio...");
 	try {
@@ -106,6 +120,8 @@ function extractAudio(filename, task_id){
 				}
 				var filePath = VIDEO_OUTPUT_URL + '/out_' + task_id + '.mp4'; 
 				fs.unlinkSync(filePath);
+
+				cb(AUDIO_OUTPUT_URL + '/' + filename + ".mp3", filename + ".mp3");
 			});
 		}, 
 		function (err) {
