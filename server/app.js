@@ -20,7 +20,7 @@ var urlencode = {
 app.use(bodyParser.urlencoded(urlencode));
 
 // query all plugin dependencies
-var plugins = require('../config.js').plugins;
+var plugins = require('./config.js').plugins;
 
 // iterate all plugin dependencies
 console.log('--loading plugins...');

@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/ethanln/btsp",
   "dependencies": {
+    "google-auth-library": "^0.10.0",
+    "googleapis": "^19.0.0",
     "multer": "^1.2.1"
   }
 }
