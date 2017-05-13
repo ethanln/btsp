@@ -5,7 +5,7 @@ var router = express.Router();
 
 var time = require('../../../util/time-util.js');
 
-var audioService = require('../service/AudioService.js');
+var AudioService = require('../service/AudioService.js');
 
 var connectionUtil = require('../../../util/connection-util.js')
 
@@ -33,9 +33,19 @@ function extractAudio(req, res){
 		time_interval[1] = time.getDeltaSeconds(req.body.startTime, req.body.endTime);
 	}
 
+	var audioService = new AudioService();
+
 	try{
-		//(video_id, size, time_interval, task_id, fileName) 
-		audioService.toMP3(req.body.video_id, size, time_interval, '1', req.body.filename, function(fileLoc, filename, resultMessage, isError){
+		var params = {
+			video_id: req.body.video_id,
+			size: size,
+			time_interval: time_interval,
+			task_id: '1',
+			filename: req.body.filename,
+			username: req.body.username
+		};
+
+		audioService.toMP3(params, function(fileLoc, filename, resultMessage, isError){
 			if(!isError){
 				res.statusCode = 200;
 			}

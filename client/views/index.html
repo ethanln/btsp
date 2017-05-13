@@ -8,6 +8,7 @@
 				var _filename= $("#filename-input").val();
 				var _startTime = $("#start-input").val();
 				var _endTime = $("#end-input").val();
+				var _username = $("#username").val();
 
 				$.ajax({
 					method: "POST",
@@ -16,7 +17,8 @@
 						video_id: _video_id,
 						filename: _filename,
 						startTime: _startTime,
-						endTime: _endTime
+						endTime: _endTime,
+						username: _username
 					},
 					success: function(data){
 						console.log(data);
@@ -38,6 +40,7 @@
 		<input type='text' id='filename-input' placeholder='file name' />
 		<input type='text' id='start-input' placeholder='start' />
 		<input type='text' id='end-input' placeholder='end' />
+		<input type='text' id='username' placeholder='username' />
 		
 		<button id='load'> LOAD </button>
 
