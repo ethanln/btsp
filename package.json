@@ -17,8 +17,21 @@
   },
   "homepage": "https://github.com/ethanln/btsp",
   "dependencies": {
-    "google-auth-library": "^0.10.0",
-    "googleapis": "^19.0.0",
-    "multer": "^1.2.1"
+    "body-parser": "*",
+    "crypto": "*",
+    "express": "^5.0.0-alpha.5",
+    "ffmpeg": "*",
+    "fluent-ffmpeg": "^2.1.2",
+    "fs": "0.0.2",
+    "google-auth-library": "*",
+    "googleapis": "*",
+    "http": "*",
+    "mkdirp": "*",
+    "multer": "^2.0.0-alpha.6",
+    "path": "*",
+    "request": "^2.81.0",
+    "require-directory": "*",
+    "unirest": "*",
+    "youtube-dl": "*"
   }
 }
