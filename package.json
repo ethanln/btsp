@@ -32,6 +32,7 @@
     "request": "^2.81.0",
     "require-directory": "*",
     "unirest": "*",
-    "youtube-dl": "*"
+    "youtube-dl": "*",
+    "mongoose": "^4.9.9"
   }
 }
