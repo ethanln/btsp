@@ -5,12 +5,6 @@ var config = {
 	plugins : {
 		'/download_management' : '.'
 	},
-	google: {
-		SCOPES: [
-			'https://www.googleapis.com/auth/drive.metadata.readonly'
-		],
-		TOKEN_PATH: '../../../cache.js'
-	},
 	audio_config: {
 		url_src: "https://youtu.be/",
 		url_video_output: "../video_output",
