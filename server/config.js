@@ -3,7 +3,8 @@ var config = {
 	port : 8080,
 	domain : 'localhost',
 	plugins : {
-		'/download_management' : '.'
+		'/download_management' : '.',
+		'/user_management': '.'
 	},
 	audio_config: {
 		url_src: "https://youtu.be/",

@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/ethanln/btsp",
   "dependencies": {
-    "body-parser": "*",
+    "body-parser": "^1.17.2",
     "crypto": "*",
     "express": "^5.0.0-alpha.5",
     "ffmpeg": "*",
@@ -27,12 +27,12 @@
     "googleapis": "*",
     "http": "*",
     "mkdirp": "*",
+    "mongoose": "^4.10.2",
     "multer": "^2.0.0-alpha.6",
     "path": "*",
     "request": "^2.81.0",
     "require-directory": "*",
     "unirest": "*",
-    "youtube-dl": "*",
-    "mongoose": "^4.9.9"
+    "youtube-dl": "*"
   }
 }

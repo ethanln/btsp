@@ -7,14 +7,14 @@ var time = require('../util/time-util.js');
 
 var AudioService = require('../service/AudioService.js');
 
-var connectionUtil = require('../util/connection-util.js')
+var ConnectionUtil = require('../util/connection-util.js')
 
 router.post('/extract_audio', extractAudio);
 
 function extractAudio(req, res){
 
 	// Handle socket connection time out events.
-	connectionUtil.setConnectionTimeout(0, req, function(){
+	ConnectionUtil.setConnectionTimeout(0, req, function(){
 		console.log("connection timed out");
 	});
 

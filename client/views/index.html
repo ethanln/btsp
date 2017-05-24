@@ -29,20 +29,56 @@
 				});
 			});
 
+			$("#register").on('click', function(e){
+				var _firstName = $("#first-name").val();
+				var _lastName = $("#last-name").val();
+				var _username = $("#user-name").val();
+				var _password = $("#password").val();
+				var _email = $("#email").val();
+
+				$.ajax({
+					method: "POST",
+					url: "/user_management/register_user",
+					data:{
+						first_name: _firstName,
+						last_name: _lastName,
+						username: _username,
+						password: _password,
+						email: _email
+					},
+					success: function(data){
+						console.log(data);
+					},
+					error: function(xhr, status, err){
+						console.log(err);
+					}
+				});
+			});
+
 		});
 		</script>
 	</head>
 
 	<body>
-		<iframe width="560" height="315" src="https://www.youtube.com/embed/H6yPLpfaGQI?list=PLSbqUp4rMsfdKcB_LqnY-T0Pr4FvpZqlc" frameborder="0" allowfullscreen></iframe>
+		<div>
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/H6yPLpfaGQI?list=PLSbqUp4rMsfdKcB_LqnY-T0Pr4FvpZqlc" frameborder="0" allowfullscreen></iframe>
 
-		<input type='text' id='video-id-input' placeholder='video ID' />
-		<input type='text' id='filename-input' placeholder='file name' />
-		<input type='text' id='start-input' placeholder='start' />
-		<input type='text' id='end-input' placeholder='end' />
-		<input type='text' id='username' placeholder='username' />
-		
-		<button id='load'> LOAD </button>
+			<input type='text' id='video-id-input' placeholder='video ID' />
+			<input type='text' id='filename-input' placeholder='file name' />
+			<input type='text' id='start-input' placeholder='start' />
+			<input type='text' id='end-input' placeholder='end' />
+			<input type='text' id='username' placeholder='username' />
+			
+			<button id='load'> LOAD </button>
+		</div>
+		<div>
+			<input type='text' id='first-name' placeholder='first' />
+			<input type='text' id='last-name' placeholder='last' />
+			<input type='text' id='user-name' placeholder='username' />
+			<input type='text' id='password' placeholder='password' />
+			<input type='text' id='email' placeholder='email' />
 
+			<button id='register'> REGISTER </button>
+		</div>
 	</body>
 </html>

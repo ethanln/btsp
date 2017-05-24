@@ -3,14 +3,17 @@
 function UserDao(){
 	var User = require('../model/UserModel.js');
 
-	this.getUser = function(params, cb){
-		/*User.findOne({ 'username': params.username }, function (err, user) {
+	this.getUser = function(key, value, cb){
+		var query = {};
+		query[key] = value;
+		User.findOne(query, function (err, user) {
 			var result = {};
-	  		if (err){
+	  		if (err || user == null){
 	  			console.log(err);
 
 	  			result.data = null;
 	  			result.message = err;
+	  			result.isError = true;
 	  			cb(result);
 		  	} 
 		  	else{
@@ -18,9 +21,10 @@ function UserDao(){
 
 			  	result.data = user;
 			  	result.message = "User exists.";
+			  	result.isError = false;
 			  	cb(result);
 		  	}
-		});*/
+		});
 	}
 
 	this.getUsers = function(params, cb){
@@ -49,7 +53,7 @@ function UserDao(){
 
 		user.save(function(err, user, numberAffected){
 			var result = {};
-			if(err){
+			if(err || user == null){
 				console.log(err);
 
 				result.data = null;
