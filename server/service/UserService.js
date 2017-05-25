@@ -9,6 +9,7 @@ function UserService(){
 
 	this.registerUser = function(params, cb){
 
+		// Check if all necessary inputs are provided.
 		if(!params.first_name
 			|| !params.last_name
 			|| !params.username
@@ -42,6 +43,7 @@ function UserService(){
 				});
 			}
 			else{
+				// If user doesn't exist, throw error.
 				var result = {
 					data: null,
 					message: 'User ' + params.username + ' already exists.',
@@ -53,16 +55,25 @@ function UserService(){
 		});
 	}
 
-	this.loginUser = function(params, cb){
-		// TODO: Implement
-	}
-
 	this.changePassword = function(params, cb){
 		// TODO: Implement
 	}
 
-	this.deleteUser = function(params, cb){
-		// TODO: Implement
+	this.unregisterUser = function(params, cb){
+		// Check if username is provided for the unregistration process
+		if(!params.username){
+			var result = {
+				data: null,
+				message: 'Invalid inputs.',
+				isError: true,
+				code: 400
+			};
+			
+			throw result;
+		}
+
+		// Delete the user from the database
+		UserDao.deleteUser(params, cb);
 	}
 }
 

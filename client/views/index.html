@@ -55,6 +55,25 @@
 				});
 			});
 
+			$("#remove").on('click', function(e){
+				var _username = $("#username-rmv").val();
+
+
+				$.ajax({
+					method: "POST",
+					url: "/user_management/unregister_user",
+					data:{
+						username: _username
+					},
+					success: function(data){
+						console.log(data);
+					},
+					error: function(xhr, status, err){
+						console.log(err);
+					}
+				});
+			});
+
 		});
 		</script>
 	</head>
@@ -79,6 +98,11 @@
 			<input type='text' id='email' placeholder='email' />
 
 			<button id='register'> REGISTER </button>
+		</div>
+		<div>
+			<input type='text' id='username-rmv' placeholder='username' />
+
+			<button id='remove'> REMOVE </button>
 		</div>
 	</body>
 </html>

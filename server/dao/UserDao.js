@@ -9,16 +9,12 @@ function UserDao(){
 		User.findOne(query, function (err, user) {
 			var result = {};
 	  		if (err || user == null){
-	  			console.log(err);
-
 	  			result.data = null;
 	  			result.message = err;
 	  			result.isError = true;
 	  			cb(result);
 		  	} 
 		  	else{
-			  	console.log('%s %s exists.', user.first_name, user.last_name);
-
 			  	result.data = user;
 			  	result.message = "User exists.";
 			  	result.isError = false;
@@ -54,18 +50,14 @@ function UserDao(){
 		user.save(function(err, user, numberAffected){
 			var result = {};
 			if(err || user == null){
-				console.log(err);
-
 				result.data = null;
 				result.message = err;
 				result.isError = true;
 				cb(result);
 			}
 			else{
-				console.log('%s saved to db', user.username);
-
 				result.data = user;
-				result.message = err;
+				result.message = 'Finished adding user.';
 				result.isError = false;
 				cb(result);
 			}
@@ -76,8 +68,22 @@ function UserDao(){
 
 	}
 
-	this.deleteUser = function(params){
-
+	this.deleteUser = function(params, cb){
+		User.findOneAndRemove({username: params.username}, function(err){
+			var result = {};
+			if(err){
+				result.data = null;
+				result.message = err;
+				result.isError = true;
+				cb(result);
+			}
+			else{
+				result.data = err;
+				result.message = 'Finished deleting user.';
+				result.isError = false;
+				cb(result);
+			}
+		});
 	}
 }
 
