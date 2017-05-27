@@ -47,16 +47,16 @@ function UserDao(){
 	this.addUser = function(params, cb){
 		var user = new User(params);
 
-		user.save(function(err, user, numberAffected){
+		user.save(function(err, addedUser, numberAffected){
 			var result = {};
-			if(err || user == null){
+			if(err || addedUser == null){
 				result.data = null;
 				result.message = err;
 				result.isError = true;
 				cb(result);
 			}
 			else{
-				result.data = user;
+				result.data = addedUser;
 				result.message = 'Finished adding user.';
 				result.isError = false;
 				cb(result);
@@ -64,12 +64,30 @@ function UserDao(){
 		});
 	}
 
-	this.updateUser = function(params){
-
+	this.updateUser = function(key, value, user, cb){
+		var query = {};
+		query[key] = value;
+		User.findOneAndUpdate(query, user, function(err, updatedUser){
+			var result = {};
+			if(err || updatedUser == null){
+				result.data = null;
+				result.message = err;
+				result.isError = true;
+				cb(result);
+			}
+			else{
+				result.data = updatedUser;
+				result.message = 'Finished updating user.';
+				result.isError = false;
+				cb(result);
+			}
+		});
 	}
 
-	this.deleteUser = function(params, cb){
-		User.findOneAndRemove({username: params.username}, function(err){
+	this.deleteUser = function(key, value, cb){
+		var query = {}
+		query[key] = value;
+		User.findOneAndRemove(query, function(err){
 			var result = {};
 			if(err){
 				result.data = null;

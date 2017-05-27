@@ -14,6 +14,7 @@ function UserService(){
 			|| !params.last_name
 			|| !params.username
 			|| !params.password
+			|| !params.confirmPassword
 			|| !params.email){
 
 			var result = {
@@ -26,9 +27,21 @@ function UserService(){
 			throw result;
 		}
 
+		// Check if the confirmation password matches the password.
+		if(params.password != params.confirmPassword){
+			var result = {
+				data: null,
+				message: 'Password confirmation does not match passsword.',
+				isError: true,
+				code: 400
+			}
+
+			throw result;
+		}
+
 		// Check if user already exists.
-		UserDao.getUser('username', params.username, function(result){
-			if(!result.data){
+		UserDao.getUser('username', params.username.toLowerCase(), function(response){
+			if(!response.data){
 				// If User does not exist, hash password and create new user.
 				bcrypt.hash(params.password, SALT, function(err, hash){
 					var userEntity = {
@@ -43,7 +56,7 @@ function UserService(){
 				});
 			}
 			else{
-				// If user doesn't exist, throw error.
+				// If user does exist, throw error.
 				var result = {
 					data: null,
 					message: 'User ' + params.username + ' already exists.',
@@ -56,7 +69,77 @@ function UserService(){
 	}
 
 	this.changePassword = function(params, cb){
-		// TODO: Implement
+		// Make sure we have the following inputs.
+		if(!params.username 
+			|| !params.oldPassword
+			|| !params.newPassword
+			|| !params.confirmPassword){
+			var result = {
+				data: null,
+				message: 'Invalid inputs.',
+				isError: true,
+				code: 400
+			};
+			
+			throw result;
+		}
+
+		// Check if the confirmation password matches the password.
+		if(params.newPassword != params.confirmPassword){
+			var result = {
+				data: null,
+				message: 'Password confirmation does not match passsword.',
+				isError: true,
+				code: 400
+			}
+			
+			throw result;
+		}
+
+		// Check if the new password is equal to the old password.
+		if(params.newPassword == params.oldPassword){
+			var result = {
+				data: null,
+				message: 'New password cannot be the old password.',
+				isError: true,
+				code: 400
+			}
+			
+			throw result;
+		}
+
+		UserDao.getUser('username', params.username.toLowerCase(), function(response){
+			if(!response.data){
+				// If user doesn't exist, throw error.
+				var result = {
+					data: null,
+					message: 'Incorrect username or password',
+					isError: true,
+					code: 404
+				};
+				cb(result);
+			}
+			else{
+				// Hash old password and compare with the persisted hashed password.
+				bcrypt.compare(params.oldPassword, response.data.password, function(err, doesMatch){
+					if(doesMatch === true){
+						// Hash the new password.
+						bcrypt.hash(params.newPassword, SALT, function(err, hash){
+							UserDao.updateUser('username', response.data.username.toLowerCase(), {password: hash}, cb);
+						});
+					}
+					else{
+						var result = {
+							data: null,
+							message: 'Incorrect username or password',
+							isError: true,
+							code: 404
+						};
+						cb(result);
+					}
+				});
+			}
+		});
 	}
 
 	this.unregisterUser = function(params, cb){
@@ -73,7 +156,7 @@ function UserService(){
 		}
 
 		// Delete the user from the database
-		UserDao.deleteUser(params, cb);
+		UserDao.deleteUser('username', params.username.toLowerCase(), cb);
 	}
 }
 

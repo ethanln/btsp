@@ -21,10 +21,10 @@
 						username: _username
 					},
 					success: function(data){
-						console.log(data);
+						$("#result-label").text(data.message);
 					},
 					error: function(xhr, status, err) {
-						console.log(err);
+						$("#result-label").text(err);
 					}
 				});
 			});
@@ -34,6 +34,7 @@
 				var _lastName = $("#last-name").val();
 				var _username = $("#user-name").val();
 				var _password = $("#password").val();
+				var _confirmPassword = $("#confirm-password").val();
 				var _email = $("#email").val();
 
 				$.ajax({
@@ -44,13 +45,14 @@
 						last_name: _lastName,
 						username: _username,
 						password: _password,
+						confirmPassword: _confirmPassword,
 						email: _email
 					},
 					success: function(data){
-						console.log(data);
+						$("#result-label").text(data.message);
 					},
 					error: function(xhr, status, err){
-						console.log(err);
+						$("#result-label").text(err);
 					}
 				});
 			});
@@ -66,10 +68,35 @@
 						username: _username
 					},
 					success: function(data){
+						$("#result-label").text(data.message);
 						console.log(data);
 					},
 					error: function(xhr, status, err){
-						console.log(err);
+						$("#result-label").text(err);
+					}
+				});
+			});
+
+			$("#update-password").on("click", function(e){
+				var _username = $("#change-p-username").val();
+				var _oldPassword = $("#change-p-old-password").val();
+				var _newPassword= $("#change-p-new-password").val();
+				var _confirmPassword = $("#change-p-confirm-password").val();
+
+				$.ajax({
+					method: "POST",
+					url: "/user_management/update_password",
+					data: {
+						username: _username,
+						oldPassword: _oldPassword,
+						newPassword: _newPassword,
+						confirmPassword: _confirmPassword
+					},
+					success: function(data){
+						$("#result-label").text(data.message);
+					},
+					error: function(xhr, status, err){
+						$("#result-label").text(err);
 					}
 				});
 			});
@@ -95,6 +122,7 @@
 			<input type='text' id='last-name' placeholder='last' />
 			<input type='text' id='user-name' placeholder='username' />
 			<input type='text' id='password' placeholder='password' />
+			<input type='text' id='confirm-password' placeholder='confirm-password' />
 			<input type='text' id='email' placeholder='email' />
 
 			<button id='register'> REGISTER </button>
@@ -103,6 +131,17 @@
 			<input type='text' id='username-rmv' placeholder='username' />
 
 			<button id='remove'> REMOVE </button>
+		</div>
+		<div>
+			<input type='text' id='change-p-username' placeholder='username'/>
+			<input type='text' id='change-p-old-password' placeholder='old password'/>
+			<input type='text' id='change-p-new-password' placeholder='new password'/>
+			<input type='text' id='change-p-confirm-password' placeholder='confirm password'/>
+
+			<button id='update-password'> UPDATE </button>
+		</div>
+		<div>
+			<label id='result-label'></label>
 		</div>
 	</body>
 </html>
