@@ -23,8 +23,8 @@ function UserService(){
 				isError: true,
 				code: 400
 			};
-			
-			throw result;
+			cb(result);
+			return;
 		}
 
 		// Check if the confirmation password matches the password.
@@ -35,24 +35,55 @@ function UserService(){
 				isError: true,
 				code: 400
 			}
-
-			throw result;
+			cb(result);
+			return;
 		}
 
 		// Check if user already exists.
-		UserDao.getUser('username', params.username.toLowerCase(), function(response){
-			if(!response.data){
+		UserDao.getUser('username', params.username.toLowerCase(), function(dbResponse){
+			if(!dbResponse.data){
 				// If User does not exist, hash password and create new user.
 				bcrypt.hash(params.password, SALT, function(err, hash){
-					var userEntity = {
-						first_name: params.first_name.toLowerCase(),
-						last_name: params.last_name.toLowerCase(),
-						username: params.username.toLowerCase(),
-						password: hash,
-						email: params.email.toLowerCase()
-					};
+					if(err || hash == null){
+						// Throw error if hash method fails.
+						var result = {
+							data: null,
+							message: 'Password hashing failed.',
+							isError: true,
+							code: 500
+						}
+						cb(result);
+					}
+					else{
+						// Create user entity parameters.
+						var userEntity = {
+							first_name: params.first_name.toLowerCase(),
+							last_name: params.last_name.toLowerCase(),
+							username: params.username.toLowerCase(),
+							password: hash,
+							email: params.email.toLowerCase()
+						};
 
-					UserDao.addUser(userEntity, cb);
+						// Register user to db.
+						UserDao.addUser(userEntity, function(addUserDbResponse){
+							var result = {};
+							if(addUserDbResponse.isError){
+								// Throw error if db communication throws an error.
+								result.data = null;
+								result.message = 'Could not register user.';
+								result.isError = true;
+								result.code = 500;
+							}
+							else{
+								// Return success result after registering user.
+								result.data = addUserDbResponse.data;
+								result.message = 'User Registered.';
+								result.isError = false;
+								result.code = 200;
+							}
+							cb(result);
+						});
+					}
 				});
 			}
 			else{
@@ -80,10 +111,10 @@ function UserService(){
 				isError: true,
 				code: 400
 			};
-			
-			throw result;
+			cb(result);
+			return;
 		}
-
+		// NOTE: REFACTOR THESE BELOW.  Or make an error handling utility.
 		// Check if the confirmation password matches the password.
 		if(params.newPassword != params.confirmPassword){
 			var result = {
@@ -92,8 +123,8 @@ function UserService(){
 				isError: true,
 				code: 400
 			}
-			
-			throw result;
+			cb(result);
+			return;
 		}
 
 		// Check if the new password is equal to the old password.
@@ -104,12 +135,12 @@ function UserService(){
 				isError: true,
 				code: 400
 			}
-			
-			throw result;
+			cb(result);
+			return;
 		}
 
-		UserDao.getUser('username', params.username.toLowerCase(), function(response){
-			if(!response.data){
+		UserDao.getUser('username', params.username.toLowerCase(), function(dbResponse){
+			if(dbResponse.isError){
 				// If user doesn't exist, throw error.
 				var result = {
 					data: null,
@@ -121,11 +152,40 @@ function UserService(){
 			}
 			else{
 				// Hash old password and compare with the persisted hashed password.
-				bcrypt.compare(params.oldPassword, response.data.password, function(err, doesMatch){
+				bcrypt.compare(params.oldPassword, dbResponse.data.password, function(err, doesMatch){
 					if(doesMatch === true){
 						// Hash the new password.
 						bcrypt.hash(params.newPassword, SALT, function(err, hash){
-							UserDao.updateUser('username', response.data.username.toLowerCase(), {password: hash}, cb);
+							if(err || hash == null){
+								// Throw error if hash method fails.
+								var result = {
+									data: null,
+									message: 'Password hashing failed.',
+									isError: true,
+									code: 500
+								}
+								cb(result);
+							}
+							else{
+								UserDao.updateUser('username', dbResponse.data.username.toLowerCase(), {password: hash}, function(updateUserDbResponse){
+									var result = {};
+									if(updateUserDbResponse.isError){
+										// Throw error if password change was not successful.
+										result.data = null;
+										result.message = 'Could not change password.';
+										result.isError = true;
+										result.code = 500;
+									}
+									else{
+										// Return success result if user update was successful.
+										result.data = updateUserDbResponse.data;
+										result.message = 'Password changed';
+										result.isError = false;
+										result.code = 200;
+									}
+									cb(result);
+								});
+							}
 						});
 					}
 					else{
@@ -152,11 +212,44 @@ function UserService(){
 				code: 400
 			};
 			
-			throw result;
+			cb(result);
+			return;
 		}
 
-		// Delete the user from the database
-		UserDao.deleteUser('username', params.username.toLowerCase(), cb);
+		// Find user first.
+		UserDao.getUser('username', params.username, function(getUserDbResponse){
+			if(getUserDbResponse.isError){
+				// Throw error if user was no unregistered successfully.
+				var result = {
+					data: null,
+					message: 'User does not exist',
+					isError: true,
+					code: 404
+				}
+				cb(result);
+			}
+			else{
+				// Delete the user from the database
+				UserDao.deleteUser('username', params.username.toLowerCase(), function(deleteUserDbResponse){
+					var result = {}
+					if(deleteUserDbResponse.isError){
+						// Throw error if user was no unregistered successfully.
+						result.data = null;
+						result.message = 'Could not delete user';
+						result.isError = true;
+						result.code = 500;
+					}
+					else{
+						// Return success result if user was unregistered successfully.
+						result.data = null;
+						result.message = 'User unregistered';
+						result.isError = false;
+						result.code = 200;
+					}
+					cb(result);
+				});
+			}
+		});
 	}
 }
 

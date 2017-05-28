@@ -24,7 +24,7 @@
 						$("#result-label").text(data.message);
 					},
 					error: function(xhr, status, err) {
-						$("#result-label").text(err);
+						$("#result-label").text(xhr.responseJSON.description);
 					}
 				});
 			});
@@ -52,7 +52,7 @@
 						$("#result-label").text(data.message);
 					},
 					error: function(xhr, status, err){
-						$("#result-label").text(err);
+						$("#result-label").text(xhr.responseJSON.description);
 					}
 				});
 			});
@@ -69,10 +69,9 @@
 					},
 					success: function(data){
 						$("#result-label").text(data.message);
-						console.log(data);
 					},
 					error: function(xhr, status, err){
-						$("#result-label").text(err);
+						$("#result-label").text(xhr.responseJSON.description);
 					}
 				});
 			});
@@ -96,7 +95,7 @@
 						$("#result-label").text(data.message);
 					},
 					error: function(xhr, status, err){
-						$("#result-label").text(err);
+						$("#result-label").text(xhr.responseJSON.description);
 					}
 				});
 			});

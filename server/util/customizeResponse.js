@@ -5,7 +5,7 @@ module.exports = function customizeResponse (req, res, next){
 		res['send'+code] = function sendCode (description, data) {
 			this.status(code).send({
 				code: code,
-				descrption: description,
+				description: description,
 				data: data
 			});
 		}
