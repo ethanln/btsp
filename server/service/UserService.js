@@ -1,8 +1,9 @@
 'use strict';
 
 function UserService(){
-	var UDao = require('../dao/UserDao.js');
-	var UserDao = new UDao();
+	var UserDao = require('../dao/UserDao.js');
+	var DbQuery = require('../util/DbQuery.js');
+	var ServiceResponse = require('../util/ServiceResponse.js');
 	var bcrypt = require('bcrypt');  
 	var SALT = bcrypt.genSaltSync();
 	var config = require('../config');
@@ -40,7 +41,7 @@ function UserService(){
 		}
 
 		// Check if user already exists.
-		UserDao.getUser('username', params.username.toLowerCase(), function(dbResponse){
+		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(dbResponse){
 			if(!dbResponse.data){
 				// If User does not exist, hash password and create new user.
 				bcrypt.hash(params.password, SALT, function(err, hash){
@@ -139,8 +140,8 @@ function UserService(){
 			return;
 		}
 
-		UserDao.getUser('username', params.username.toLowerCase(), function(dbResponse){
-			if(dbResponse.isError){
+		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(dbResponse){
+			if(dbResponse.isError || !dbResponse.data){
 				// If user doesn't exist, throw error.
 				var result = {
 					data: null,
@@ -167,7 +168,7 @@ function UserService(){
 								cb(result);
 							}
 							else{
-								UserDao.updateUser('username', dbResponse.data.username.toLowerCase(), {password: hash}, function(updateUserDbResponse){
+								UserDao.updateUser(new DbQuery({'username': dbResponse.data.username.toLowerCase()}), {password: hash}, function(updateUserDbResponse){
 									var result = {};
 									if(updateUserDbResponse.isError){
 										// Throw error if password change was not successful.
@@ -217,8 +218,8 @@ function UserService(){
 		}
 
 		// Find user first.
-		UserDao.getUser('username', params.username, function(getUserDbResponse){
-			if(getUserDbResponse.isError){
+		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
+			if(getUserDbResponse.isError || !getUserDbResponse.data){
 				// Throw error if user was no unregistered successfully.
 				var result = {
 					data: null,
@@ -230,7 +231,7 @@ function UserService(){
 			}
 			else{
 				// Delete the user from the database
-				UserDao.deleteUser('username', params.username.toLowerCase(), function(deleteUserDbResponse){
+				UserDao.deleteUser(new DbQuery({'username': params.username.toLowerCase()}), function(deleteUserDbResponse){
 					var result = {}
 					if(deleteUserDbResponse.isError){
 						// Throw error if user was no unregistered successfully.
@@ -253,4 +254,4 @@ function UserService(){
 	}
 }
 
-module.exports = UserService;
+module.exports = new UserService();

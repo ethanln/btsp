@@ -1,42 +1,29 @@
 'use strict';
 
 function UserDao(){
+	var DbResponse = require('../util/DbResponse.js');
 	var User = require('../model/UserModel.js');
 
 	/**
 	* Gets a user entity from the database.
 	*/
-	this.getUser = function(key, value, cb){
+	this.getUser = function(dbQuery, cb){
 		// If no key-value-pair is given, throw error.
-		if(!key || !value){
-			var dbError = {
-				data: null,
-				message: 'User not found.',
-				isError: true
-			};
-  			cb(dbError);
+		if(!dbQuery){
+  			cb(new DbResponse('No query parameters found.', null, 3));
   			return;
 		}
 
-		// Construct query.
-		var query = {};
-		query[key] = value;
-
 		// Find User.
-		User.findOne(query, function (err, user) {
+		User.findOne(dbQuery.query, function (err, user) {
 			var result = {};
-			// NOTE: We should still return a null value for users.
-	  		if (err || user == null){
+	  		if (err){
 	  			// Throw error if user is non-existent in database.
-	  			result.data = null;
-	  			result.message = 'User not found';
-	  			result.isError = true;
+	  			result = new DbResponse('Database query failed for query ' + dbQuery.query.toString() + '.', null, 2);
 		  	} 
 		  	else{
 		  		// Return success result if User is found.
-			  	result.data = user;
-			  	result.message = "User exists.";
-			  	result.isError = false;
+		  		result = new DbResponse('User found.', user, 1);
 		  	}
 		  	cb(result);
 		});
@@ -51,15 +38,11 @@ function UserDao(){
 			var result = {}
 	  		if (err){
 	  			// Throw error if db communication fails.
-	  			result.data = null;
-	  			result.message = 'Could not get users';
-	  			result.isError = true;
+	  			result = new DbResponse('Database connection threw error while trying to fetch all users', null, 2);
 		  	} 
 		  	else{
 		  		// Return success result.
-			  	result.data = users;
-			  	result.message = "Fetched users."
-			  	result.isError = false;
+		  		result = new DbResponse('All users fetched.', users, 1);
 		  	}
 		  	cb(result);
 		});
@@ -71,12 +54,7 @@ function UserDao(){
 	this.addUser = function(userData, cb){
 		// If user data is not provided, throw error.
 		if(!userData){
-			var dbError = {
-				data: null,
-				message: 'No user data provided.',
-				isError: true
-			};
-  			cb(dbError);
+  			cb(new DbResponse('No user data provided for add.', null, 3));
   			return;
 		}
 
@@ -86,18 +64,13 @@ function UserDao(){
 		// Save user entity to the database.
 		user.save(function(err, addedUser, numberAffected){
 			var result = {};
-			// NOTE: We should still return a null value for users.
-			if(err || addedUser == null){
+			if(err){
 				// Throw error if user could not be added.
-				result.data = null;
-				result.message = 'Could not add user';
-				result.isError = true;
+				result = new DbResponse('Could not add user', null, 2);
 			}
 			else{
 				// Return success result if user was added to database.
-				result.data = addedUser;
-				result.message = 'Finished adding user.';
-				result.isError = false;
+				result = new DbResponse('Finished adding user.', addedUser, 1);
 			}
 			cb(result);
 		});
@@ -106,37 +79,23 @@ function UserDao(){
 	/**
 	* Updates User in Database.
 	*/
-	this.updateUser = function(key, value, data, cb){
+	this.updateUser = function(dbQuery, data, cb){
 		// If no key-value-pair is given, throw error.
-		if(!key || !value){
-			var dbError = {
-				data: null,
-				message: 'User not found.',
-				isError: true
-			};
-  			cb(dbError);
+		if(!dbQuery){
+			cb(new DbResponse('No query parameters found.', null, 3));
   			return;
 		}
 
-		// Construct query.
-		var query = {};
-		query[key] = value;
-
 		// Update user.
-		User.findOneAndUpdate(query, data, function(err, updatedUser){
+		User.findOneAndUpdate(dbQuery.query, data, function(err, updatedUser){
 			var result = {};
-			// NOTE: We should still return a null value for users.
-			if(err || updatedUser == null){
+			if(err){
 				// Throw error is no user was found to be update, or db communications failed.
-				result.data = null;
-				result.message = 'Could not update user.';
-				result.isError = true;
+				result = new DbResponse('Could not update user.', null, 2);
 			}
 			else{
 				// Return success result if user was updated.
-				result.data = updatedUser;
-				result.message = 'Finished updating user.';
-				result.isError = false;
+				result = new DbResponse('Finished updating user.', updatedUser, 1);
 			}
 			cb(result);
 		});
@@ -145,40 +104,27 @@ function UserDao(){
 	/**
 	* Deletes User from Database.
 	*/
-	this.deleteUser = function(key, value, cb){
+	this.deleteUser = function(dbQuery, cb){
 		// If no key-value-pair is given, throw error.
-		if(!key || !value){
-			var dbError = {
-				data: null,
-				message: 'User not found.',
-				isError: true
-			};
-  			cb(dbError);
+		if(!dbQuery){
+			cb(new DbResponse('No query parameters found.', null, 3));
   			return;
 		}
 
-		// Construct query.
-		var query = {}
-		query[key] = value;
-
 		// Remove User.
-		User.findOneAndRemove(query, function(err){
+		User.findOneAndRemove(dbQuery.query, function(err){
 			var result = {};
 			if(err){
 				// Throw error if db communications failed.
-				result.data = null;
-				result.message = 'Could not remove user.';
-				result.isError = true;
+				result = new DbResponse('Could not remove user.', null, 2);
 			}
 			else{
 				// Return success result if user was successfully deleted.
-				result.data = err;
-				result.message = 'Finished deleting user.';
-				result.isError = false;
+				result = new DbResponse('Finished deleting user.', err, 1);
 			}
 			cb(result);
 		});
 	}
 }
 
-module.exports = UserDao;
+module.exports = new UserDao();

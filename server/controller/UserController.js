@@ -3,8 +3,7 @@
 var express = require('express');
 var router = express.Router();
 
-var UService = require('../service/UserService.js');
-var UserService = new UService();
+var UserService = require('../service/UserService.js');
 var ConnectionUtil = require('../util/connection-util.js');
 
 router.post('/register_user', register_user);
