@@ -33,6 +33,7 @@
     "request": "^2.81.0",
     "require-directory": "*",
     "unirest": "*",
-    "youtube-dl": "*"
+    "youtube-dl": "*",
+    "request-ip": "*"
   }
 }

@@ -8,52 +8,34 @@ function UserService(){
 	var SALT = bcrypt.genSaltSync();
 	var config = require('../config');
 
+	/**
+	* Service call to unregister user from persistent layer.
+	*/
 	this.registerUser = function(params, cb){
 
 		// Check if all necessary inputs are provided.
-		if(!params.first_name
-			|| !params.last_name
-			|| !params.username
-			|| !params.password
-			|| !params.confirmPassword
-			|| !params.email){
+		if(!params.first_name || !params.last_name
+			|| !params.username || !params.password
+			|| !params.confirmPassword || !params.email){
 
-			var result = {
-				data: null,
-				message: 'Invalid inputs.',
-				isError: true,
-				code: 400
-			};
-			cb(result);
+			cb(new ServiceResponse('Invalid inputs', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			return;
 		}
 
 		// Check if the confirmation password matches the password.
 		if(params.password != params.confirmPassword){
-			var result = {
-				data: null,
-				message: 'Password confirmation does not match passsword.',
-				isError: true,
-				code: 400
-			}
-			cb(result);
+			cb(new ServiceResponse('Password confirmation does not match password.', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			return;
 		}
 
 		// Check if user already exists.
-		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(dbResponse){
-			if(!dbResponse.data){
+		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
+			if(!getUserDbResponse.data){
 				// If User does not exist, hash password and create new user.
 				bcrypt.hash(params.password, SALT, function(err, hash){
 					if(err || hash == null){
 						// Throw error if hash method fails.
-						var result = {
-							data: null,
-							message: 'Password hashing failed.',
-							isError: true,
-							code: 500
-						}
-						cb(result);
+						cb(new ServiceResponse('Password hashing failed.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR));
 					}
 					else{
 						// Create user entity parameters.
@@ -70,17 +52,11 @@ function UserService(){
 							var result = {};
 							if(addUserDbResponse.isError){
 								// Throw error if db communication throws an error.
-								result.data = null;
-								result.message = 'Could not register user.';
-								result.isError = true;
-								result.code = 500;
+								result = new ServiceResponse('Could not register user.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR);
 							}
 							else{
 								// Return success result after registering user.
-								result.data = addUserDbResponse.data;
-								result.message = 'User Registered.';
-								result.isError = false;
-								result.code = 200;
+								result = new ServiceResponse('User Registered.', addUserDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
 							}
 							cb(result);
 						});
@@ -89,100 +65,60 @@ function UserService(){
 			}
 			else{
 				// If user does exist, throw error.
-				var result = {
-					data: null,
-					message: 'User ' + params.username + ' already exists.',
-					isError: true,
-					code: 400
-				};
-				cb(result);
+				cb(new ServiceResponse('User ' + params.username + ' already exists.', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			}
 		});
 	}
 
+	/**
+	* Service call to change user password in persistent layer.
+	*/
 	this.changePassword = function(params, cb){
 		// Make sure we have the following inputs.
-		if(!params.username 
-			|| !params.oldPassword
-			|| !params.newPassword
-			|| !params.confirmPassword){
-			var result = {
-				data: null,
-				message: 'Invalid inputs.',
-				isError: true,
-				code: 400
-			};
-			cb(result);
+		if(!params.username || !params.oldPassword
+			|| !params.newPassword || !params.confirmPassword){
+
+			cb(new ServiceResponse('Invalid inputs.', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			return;
 		}
-		// NOTE: REFACTOR THESE BELOW.  Or make an error handling utility.
+
 		// Check if the confirmation password matches the password.
 		if(params.newPassword != params.confirmPassword){
-			var result = {
-				data: null,
-				message: 'Password confirmation does not match passsword.',
-				isError: true,
-				code: 400
-			}
-			cb(result);
+			cb(new ServiceResponse('Password confirmation does not match password.', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			return;
 		}
 
 		// Check if the new password is equal to the old password.
 		if(params.newPassword == params.oldPassword){
-			var result = {
-				data: null,
-				message: 'New password cannot be the old password.',
-				isError: true,
-				code: 400
-			}
-			cb(result);
+			cb(new ServiceResponse('New password cannot be the old password.', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			return;
 		}
 
-		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(dbResponse){
-			if(dbResponse.isError || !dbResponse.data){
+		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
+			if(getUserDbResponse.isError || !getUserDbResponse.data){
 				// If user doesn't exist, throw error.
-				var result = {
-					data: null,
-					message: 'Incorrect username or password',
-					isError: true,
-					code: 404
-				};
-				cb(result);
+				cb(new ServiceResponse('Incorrect username or password.', null, ServiceResponse.RESPONSE_TYPE.NOT_FOUND));
 			}
 			else{
 				// Hash old password and compare with the persisted hashed password.
-				bcrypt.compare(params.oldPassword, dbResponse.data.password, function(err, doesMatch){
+				bcrypt.compare(params.oldPassword, getUserDbResponse.data.password, function(err, doesMatch){
 					if(doesMatch === true){
 						// Hash the new password.
 						bcrypt.hash(params.newPassword, SALT, function(err, hash){
 							if(err || hash == null){
 								// Throw error if hash method fails.
-								var result = {
-									data: null,
-									message: 'Password hashing failed.',
-									isError: true,
-									code: 500
-								}
-								cb(result);
+								cb(new ServiceResponse('Password hashing failed.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR));
 							}
 							else{
-								UserDao.updateUser(new DbQuery({'username': dbResponse.data.username.toLowerCase()}), {password: hash}, function(updateUserDbResponse){
+								UserDao.updateUser(new DbQuery({'username': getUserDbResponse.data.username.toLowerCase()}), {password: hash}, function(updateUserDbResponse){
 									var result = {};
 									if(updateUserDbResponse.isError){
 										// Throw error if password change was not successful.
-										result.data = null;
-										result.message = 'Could not change password.';
-										result.isError = true;
-										result.code = 500;
+										result = new ServiceResponse('Could not change password.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR);
 									}
 									else{
 										// Return success result if user update was successful.
-										result.data = updateUserDbResponse.data;
-										result.message = 'Password changed';
-										result.isError = false;
-										result.code = 200;
+										result = new ServiceResponse('Password changed.', updateUserDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
 									}
 									cb(result);
 								});
@@ -190,30 +126,21 @@ function UserService(){
 						});
 					}
 					else{
-						var result = {
-							data: null,
-							message: 'Incorrect username or password',
-							isError: true,
-							code: 404
-						};
-						cb(result);
+						// Throw error if password does not match.
+						cb(new ServiceResponse('Incorrect username or password.', null, ServiceResponse.RESPONSE_TYPE.NOT_AUTHORIZED));
 					}
 				});
 			}
 		});
 	}
 
+	/**
+	* Service call to unregister user from the persisten layer.
+	*/
 	this.unregisterUser = function(params, cb){
 		// Check if username is provided for the unregistration process
 		if(!params.username){
-			var result = {
-				data: null,
-				message: 'Invalid inputs.',
-				isError: true,
-				code: 400
-			};
-			
-			cb(result);
+			cb(new ServiceResponse('Invalid inputs.', null, ServiceResponse.RESPONSE_TYPE.INVALID_INPUT));
 			return;
 		}
 
@@ -221,13 +148,7 @@ function UserService(){
 		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
 			if(getUserDbResponse.isError || !getUserDbResponse.data){
 				// Throw error if user was no unregistered successfully.
-				var result = {
-					data: null,
-					message: 'User does not exist',
-					isError: true,
-					code: 404
-				}
-				cb(result);
+				cb(new ServiceResponse('User does not exist.', null, ServiceResponse.RESPONSE_TYPE.NOT_FOUND));
 			}
 			else{
 				// Delete the user from the database
@@ -235,17 +156,11 @@ function UserService(){
 					var result = {}
 					if(deleteUserDbResponse.isError){
 						// Throw error if user was no unregistered successfully.
-						result.data = null;
-						result.message = 'Could not delete user';
-						result.isError = true;
-						result.code = 500;
+						result = new ServiceResponse('Could not delete user.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR);
 					}
 					else{
 						// Return success result if user was unregistered successfully.
-						result.data = null;
-						result.message = 'User unregistered';
-						result.isError = false;
-						result.code = 200;
+						result = new ServiceResponse('User unregistered.', deleteUserDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
 					}
 					cb(result);
 				});

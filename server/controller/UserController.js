@@ -11,32 +11,30 @@ router.post('/unregister_user', unregister_user);
 router.post('/update_password', update_password);
 
 function register_user(req, res){
+
 	ConnectionUtil.setConnectionTimeout(0, req, function(){
 		console.log("connection timed out.");
 	});
 
-	console.log("Registering user...");
+	// Fetch client ip.
+	var ip = req.ip;
+
+	console.log(ip + " ====> Registering user...");
 	try{
 		UserService.registerUser(req.body, function(result){
 			if(result.isError){
-				console.log(result.message);
-				res.send500(result.message, result.data);
+				console.log(ip + " ====> " + result.message);
+				eval('res.send' + result.responseType + '(result.message, result)');
 			}
 			else{
-				console.log("Finished registering user.");
+				console.log(ip + " ====> Finished registering user.");
 				res.json(result);		
 			}
 		});
 	}
 	catch(err){
-		if(err.code){
-			console.log(err.message);
-			eval("res.send" + [err.code] + "(err.message, err.data)");
-		}
-		else{
-			console.log(err);
-			res.send500("System error occurred.", err)
-		}
+		console.log(ip + " ====> " + err);
+		res.send500("System error occurred.", err)
 	}
 }
 
@@ -45,28 +43,25 @@ function unregister_user(req, res){
 		console.log("connection timed out.");
 	});
 
-	console.log("Unregistering user...");
+	// Fetch client ip.
+	var ip = req.ip;
+
+	console.log(ip + " ====> Unregistering user...");
 	try{
 		UserService.unregisterUser(req.body, function(result){
 			if(result.isError){
-				console.log(result.message);
-				res.send500(result.message, result.data);
+				console.log(ip + " ====> " + result.message);
+				eval('res.send' + result.responseType + '(result.message, result)');
 			}
 			else{
-				console.log("Finished unregistering user.");
+				console.log(ip + " ====> Finished unregistering user.");
 				res.json(result);		
 			}
 		});
 	}
 	catch(err){
-		if(err.code){
-			console.log(err.message);
-			eval("res.send" + [err.code] + "(err.message, err.data)");
-		}
-		else{
-			console.log(err);
-			res.send500("System error occurred.", err)
-		}
+		console.log(ip + " ====> " + err);
+		res.send500("System error occurred.", err);
 	}
 }
 
@@ -75,28 +70,25 @@ function update_password(req, res){
 		console.log("connection timed out.");
 	});
 
-	console.log("Updating password...");
+	// Fetch client ip.
+	var ip = req.ip;
+
+	console.log(ip + " ====> Updating password...");
 	try{
 		UserService.changePassword(req.body, function(result){
 			if(result.isError){
-				console.log(result.message);
-				res.send500(result.message, result.data);
+				console.log(ip + " ====> " + result.message);
+				eval('res.send' + result.responseType + '(result.message, result)');
 			}
 			else{
-				console.log("Finished changing password.")
+				console.log(ip + " ====> Finished changing password.")
 				res.json(result);
 			}
 		});
 	}
 	catch(err){
-		if(err.code){
-			console.log(err.message);
-			eval("res.send" + [err.code] + "(err.message, err.data)");
-		}
-		else{
-			console.log(err);
-			res.send500("System error occurred.", err)
-		}
+		console.log(ip + " ====> " + err);
+		res.send500("System error occurred.", err);
 	}
 }
 
