@@ -7,7 +7,7 @@ function UserDao(){
 	/**
 	* Gets a user entity from the database.
 	*/
-	this.getUser = function(dbQuery, cb){
+	this.get = function(dbQuery, cb){
 		// If no key-value-pair is given, throw error.
 		if(!dbQuery){
   			cb(new DbResponse('No query parameters found.', null, DbResponse.RESPONSE_TYPE.INVALID_INPUT));
@@ -32,7 +32,7 @@ function UserDao(){
 	/**
 	* Gets all user entities from the database.
 	*/
-	this.getUsers = function(cb){
+	this.getAll = function(cb){
 		// Find all users.
 		User.find({}, function (err, users) {
 			var result = {}
@@ -51,7 +51,7 @@ function UserDao(){
 	/**
 	* Adds a new user to the database.
 	*/
-	this.addUser = function(userData, cb){
+	this.add = function(userData, cb){
 		// If user data is not provided, throw error.
 		if(!userData){
   			cb(new DbResponse('No user data provided for add.', null, DbResponse.RESPONSE_TYPE.INVALID_INPUT));
@@ -79,7 +79,7 @@ function UserDao(){
 	/**
 	* Updates User in Database.
 	*/
-	this.updateUser = function(dbQuery, data, cb){
+	this.update = function(dbQuery, data, cb){
 		// If no key-value-pair is given, throw error.
 		if(!dbQuery){
 			cb(new DbResponse('No query parameters found.', null, DbResponse.RESPONSE_TYPE.INVALID_INPUT));
@@ -104,7 +104,7 @@ function UserDao(){
 	/**
 	* Deletes User from Database.
 	*/
-	this.deleteUser = function(dbQuery, cb){
+	this.delete = function(dbQuery, cb){
 		// If no key-value-pair is given, throw error.
 		if(!dbQuery){
 			cb(new DbResponse('No query parameters found.', null, DbResponse.RESPONSE_TYPE.INVALID_INPUT));

@@ -13,6 +13,10 @@ var config = {
 	},
 	persistent_config: {
 		connection_string: "mongodb://localhost/btsp_db"
+	},
+	client_logger: {
+		url_logger_output: "../../client_logs",
+		url_logger_src_name: "ClienLogs.json"
 	}
 };
 

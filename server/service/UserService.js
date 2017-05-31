@@ -29,8 +29,8 @@ function UserService(){
 		}
 
 		// Check if user already exists.
-		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
-			if(!getUserDbResponse.data){
+		UserDao.get(new DbQuery({'username': params.username.toLowerCase()}), function(getDbResponse){
+			if(!getDbResponse.data){
 				// If User does not exist, hash password and create new user.
 				bcrypt.hash(params.password, SALT, function(err, hash){
 					if(err || hash == null){
@@ -48,15 +48,15 @@ function UserService(){
 						};
 
 						// Register user to db.
-						UserDao.addUser(userEntity, function(addUserDbResponse){
+						UserDao.add(userEntity, function(addDbResponse){
 							var result = {};
-							if(addUserDbResponse.isError){
+							if(addDbResponse.isError){
 								// Throw error if db communication throws an error.
 								result = new ServiceResponse('Could not register user.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR);
 							}
 							else{
 								// Return success result after registering user.
-								result = new ServiceResponse('User Registered.', addUserDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
+								result = new ServiceResponse('User Registered.', addDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
 							}
 							cb(result);
 						});
@@ -94,14 +94,14 @@ function UserService(){
 			return;
 		}
 
-		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
-			if(getUserDbResponse.isError || !getUserDbResponse.data){
+		UserDao.get(new DbQuery({'username': params.username.toLowerCase()}), function(getDbResponse){
+			if(getDbResponse.isError || !getDbResponse.data){
 				// If user doesn't exist, throw error.
 				cb(new ServiceResponse('Incorrect username or password.', null, ServiceResponse.RESPONSE_TYPE.NOT_FOUND));
 			}
 			else{
 				// Hash old password and compare with the persisted hashed password.
-				bcrypt.compare(params.oldPassword, getUserDbResponse.data.password, function(err, doesMatch){
+				bcrypt.compare(params.oldPassword, getDbResponse.data.password, function(err, doesMatch){
 					if(doesMatch === true){
 						// Hash the new password.
 						bcrypt.hash(params.newPassword, SALT, function(err, hash){
@@ -110,15 +110,15 @@ function UserService(){
 								cb(new ServiceResponse('Password hashing failed.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR));
 							}
 							else{
-								UserDao.updateUser(new DbQuery({'username': getUserDbResponse.data.username.toLowerCase()}), {password: hash}, function(updateUserDbResponse){
+								UserDao.update(new DbQuery({'username': getDbResponse.data.username.toLowerCase()}), {password: hash}, function(updateDbResponse){
 									var result = {};
-									if(updateUserDbResponse.isError){
+									if(updateDbResponse.isError){
 										// Throw error if password change was not successful.
 										result = new ServiceResponse('Could not change password.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR);
 									}
 									else{
 										// Return success result if user update was successful.
-										result = new ServiceResponse('Password changed.', updateUserDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
+										result = new ServiceResponse('Password changed.', updateDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
 									}
 									cb(result);
 								});
@@ -145,22 +145,22 @@ function UserService(){
 		}
 
 		// Find user first.
-		UserDao.getUser(new DbQuery({'username': params.username.toLowerCase()}), function(getUserDbResponse){
-			if(getUserDbResponse.isError || !getUserDbResponse.data){
+		UserDao.get(new DbQuery({'username': params.username.toLowerCase()}), function(getDbResponse){
+			if(getDbResponse.isError || !getDbResponse.data){
 				// Throw error if user was no unregistered successfully.
 				cb(new ServiceResponse('User does not exist.', null, ServiceResponse.RESPONSE_TYPE.NOT_FOUND));
 			}
 			else{
 				// Delete the user from the database
-				UserDao.deleteUser(new DbQuery({'username': params.username.toLowerCase()}), function(deleteUserDbResponse){
+				UserDao.delete(new DbQuery({'username': params.username.toLowerCase()}), function(deleteDbResponse){
 					var result = {}
-					if(deleteUserDbResponse.isError){
+					if(deleteDbResponse.isError){
 						// Throw error if user was no unregistered successfully.
 						result = new ServiceResponse('Could not delete user.', null, ServiceResponse.RESPONSE_TYPE.SYSTEM_ERROR);
 					}
 					else{
 						// Return success result if user was unregistered successfully.
-						result = new ServiceResponse('User unregistered.', deleteUserDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
+						result = new ServiceResponse('User unregistered.', deleteDbResponse.data, ServiceResponse.RESPONSE_TYPE.SUCCESS);
 					}
 					cb(result);
 				});
